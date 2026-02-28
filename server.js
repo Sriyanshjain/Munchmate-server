@@ -6,17 +6,27 @@ const port = process.env.PORT || 3000;
 
 app.use(cors());
 
+const swiggyHeaders = {
+    'Content-Type': 'application/json',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+    'Accept': '*/*',
+    'Accept-Language': 'en-IN,en;q=0.9',
+    'Referer': 'https://www.swiggy.com/',
+    'Origin': 'https://www.swiggy.com',
+    'platform': 'dweb',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'Cookie': process.env.SWIGGY_COOKIE
+};
+
 app.get('/api/restaurants', (req, res) => {
     const { lat, lng } = req.query;
-    const swiggyUrl = `https://www.swiggy.com/dapi/restaurants/list/v5?lat=${lat}&lng=${lng}&page_type=DESKTOP_WEB_LISTING`;
-    const url = `http://api.scraperapi.com?api_key=${process.env.SCRAPER_KEY}&url=${encodeURIComponent(swiggyUrl)}`;
+    const url = `https://www.swiggy.com/dapi/restaurants/list/v5?lat=${lat}&lng=${lng}&page_type=DESKTOP_WEB_LISTING`;
 
-    fetch(url, {
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
+    fetch(url, { headers: swiggyHeaders })
     .then(response => {
+        console.log("Restaurants response status:", response.status);
         if (!response.ok) throw new Error(`Swiggy returned: ${response.status}`);
         return response.json();
     })
@@ -29,18 +39,13 @@ app.get('/api/restaurants', (req, res) => {
 
 app.get('/api/menu', (req, res) => {
     const { lat, lng, restaurantId } = req.query;
-    const swiggyUrl = `https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=${lat}&lng=${lng}&restaurantId=${restaurantId}&catalog_qa=undefined&submitAction=ENTER`;
-    const url = `http://api.scraperapi.com?api_key=${process.env.SCRAPER_KEY}&url=${encodeURIComponent(swiggyUrl)}`;
+    const url = `https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=${lat}&lng=${lng}&restaurantId=${restaurantId}&catalog_qa=undefined&submitAction=ENTER`;
 
-    console.log("Fetching URL:", swiggyUrl);
+    console.log("Fetching URL:", url);
 
-    fetch(url, {
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
+    fetch(url, { headers: swiggyHeaders })
     .then(response => {
-        console.log("Swiggy response status:", response.status);
+        console.log("Menu response status:", response.status);
         if (!response.ok) throw new Error(`Swiggy returned: ${response.status}`);
         return response.json();
     })

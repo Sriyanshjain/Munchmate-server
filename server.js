@@ -23,9 +23,9 @@ const swiggyHeaders = {
 app.get('/api/restaurants', (req, res) => {
     const { lat, lng } = req.query;
     const swiggyUrl = `https://www.swiggy.com/dapi/restaurants/list/v5?lat=${lat}&lng=${lng}&page_type=DESKTOP_WEB_LISTING`;
-    const url = `http://api.scraperapi.com?api_key=${process.env.SCRAPER_KEY}&url=${encodeURIComponent(swiggyUrl)}&render=false`;
+    const url = `http://api.scraperapi.com?api_key=${process.env.SCRAPER_KEY}&url=${encodeURIComponent(swiggyUrl)}&render=false&keep_headers=true`;
 
-    fetch(url)
+    fetch(url, { headers: swiggyHeaders })
     .then(response => {
         console.log("Restaurants ScraperAPI status:", response.status);
         return response.text();
@@ -44,11 +44,11 @@ app.get('/api/restaurants', (req, res) => {
 app.get('/api/menu', (req, res) => {
     const { lat, lng, restaurantId } = req.query;
     const swiggyUrl = `https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=${lat}&lng=${lng}&restaurantId=${restaurantId}&catalog_qa=undefined&submitAction=ENTER`;
-    const url = `http://api.scraperapi.com?api_key=${process.env.SCRAPER_KEY}&url=${encodeURIComponent(swiggyUrl)}&render=false`;
+    const url = `http://api.scraperapi.com?api_key=${process.env.SCRAPER_KEY}&url=${encodeURIComponent(swiggyUrl)}&render=false&keep_headers=true`;
 
     console.log("Fetching menu for restaurantId:", restaurantId);
 
-    fetch(url)
+    fetch(url, { headers: swiggyHeaders })
     .then(response => {
         console.log("Menu ScraperAPI status:", response.status);
         return response.text();

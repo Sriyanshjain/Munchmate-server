@@ -33,32 +33,25 @@ app.get('/api/restaurants',(req,res)=>{
 });
 app.get('/api/menu', (req, res) => {
     const { lat, lng, restaurantId } = req.query;
-    console.log(req.query);
-   const url = `https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=${lat}&lng=${lng}&restaurantId=${restaurantId}`;
-  
-  
-    fetch(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-      
-      }
-    })
-      .then(response => {
+    const url = `https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=${lat}&lng=${lng}&restaurantId=${restaurantId}&catalog_qa=undefined&submitAction=ENTER`;
+
+    console.log("Fetching URL:", url); // check if params are coming through
+
+    fetch(url, { headers: { ... } })
+    .then(response => {
+        console.log("Swiggy response status:", response.status); // what is swiggy returning?
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error(`Swiggy returned: ${response.status}`);
         }
         return response.json();
       })
-      .then(data => {
-        res.json(data);
-      })
+      .then(data => res.json(data))
       .catch(error => {
-        console.error(error);
-        res.status(500).send('An error occurred');
+        console.error("Error details:", error.message);
+        res.status(500).json({ error: error.message }); // return error as JSON so you can see it in browser
       });
-  });
+});
+
 app.get('/', (req, res) => { 
     res.json({"test":"hello Munchmate lovers !!! "});
   })  

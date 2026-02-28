@@ -40,11 +40,16 @@ app.get('/api/menu', (req, res) => {
     fetch(url, {
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'en-US,en;q=0.9',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+        'Accept': '*/*',
+        'Accept-Language': 'en-IN,en;q=0.9',
         'Referer': 'https://www.swiggy.com/',
         'Origin': 'https://www.swiggy.com',
+        'platform': 'dweb',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
+        'Cookie': process.env.SWIGGY_COOKIE
       }
     })
     .then(response => {

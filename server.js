@@ -14,55 +14,44 @@ const swiggyHeaders = {
     'Referer': 'https://www.swiggy.com/',
     'Origin': 'https://www.swiggy.com',
     'platform': 'dweb',
-    'sec-fetch-dest': 'empty',
-    'sec-fetch-mode': 'cors',
-    'sec-fetch-site': 'same-origin',
     'Cookie': process.env.SWIGGY_COOKIE
 };
 
 app.get('/api/restaurants', (req, res) => {
     const { lat, lng } = req.query;
-    const swiggyUrl = `https://www.swiggy.com/dapi/restaurants/list/v5?lat=${lat}&lng=${lng}&page_type=DESKTOP_WEB_LISTING`;
-    const url = `http://api.scraperapi.com?api_key=${process.env.SCRAPER_KEY}&url=${encodeURIComponent(swiggyUrl)}&render=false&keep_headers=true`;
+    const url = `https://www.swiggy.com/dapi/restaurants/list/v5?lat=${lat}&lng=${lng}&page_type=DESKTOP_WEB_LISTING`;
 
     fetch(url, { headers: swiggyHeaders })
     .then(response => {
-        console.log("Restaurants ScraperAPI status:", response.status);
-        return response.text();
+        if (!response.ok) throw new Error(`Swiggy returned: ${response.status}`);
+        return response.json();
     })
-    .then(text => {
-        console.log("Restaurants raw response (first 200):", text.substring(0, 200));
-        const json = JSON.parse(text);
-        res.json(json);
-    })
+    .then(data => res.json(data))
     .catch(error => {
-        console.error("Restaurants error:", error.message);
+        console.error("Error:", error.message);
         res.status(500).json({ error: error.message });
     });
 });
 
-app.get('/api/menu', (req, res) => {
-    const { lat, lng, restaurantId } = req.query;
-    const swiggyUrl = `https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=${lat}&lng=${lng}&restaurantId=${restaurantId}&catalog_qa=undefined&submitAction=ENTER`;
-    const url = `http://api.scraperapi.com?api_key=${process.env.SCRAPER_KEY}&url=${encodeURIComponent(swiggyUrl)}&render=false&keep_headers=true`;
+// Menu API — currently using mock data in the frontend (src/mockData/menuData.json)
+// Swiggy blocks requests from cloud server IPs (returns 202 with empty body)
+// Uncomment and update cookie if you want to try again in the future
 
-    console.log("Fetching menu for restaurantId:", restaurantId);
-
-    fetch(url, { headers: swiggyHeaders })
-    .then(response => {
-        console.log("Menu ScraperAPI status:", response.status);
-        return response.text();
-    })
-    .then(text => {
-        console.log("Menu raw response (first 200):", text.substring(0, 200));
-        const json = JSON.parse(text);
-        res.json(json);
-    })
-    .catch(error => {
-        console.error("Menu error:", error.message);
-        res.status(500).json({ error: error.message });
-    });
-});
+// app.get('/api/menu', (req, res) => {
+//     const { lat, lng, restaurantId } = req.query;
+//     const url = `https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=${lat}&lng=${lng}&restaurantId=${restaurantId}&catalog_qa=undefined&submitAction=ENTER`;
+//
+//     fetch(url, { headers: swiggyHeaders })
+//     .then(response => {
+//         if (!response.ok) throw new Error(`Swiggy returned: ${response.status}`);
+//         return response.json();
+//     })
+//     .then(data => res.json(data))
+//     .catch(error => {
+//         console.error("Error:", error.message);
+//         res.status(500).json({ error: error.message });
+//     });
+// });
 
 app.get('/', (req, res) => {
     res.json({ "test": "hello Munchmate lovers !!!" });

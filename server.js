@@ -22,36 +22,44 @@ const swiggyHeaders = {
 
 app.get('/api/restaurants', (req, res) => {
     const { lat, lng } = req.query;
-    const url = `https://www.swiggy.com/dapi/restaurants/list/v5?lat=${lat}&lng=${lng}&page_type=DESKTOP_WEB_LISTING`;
+    const swiggyUrl = `https://www.swiggy.com/dapi/restaurants/list/v5?lat=${lat}&lng=${lng}&page_type=DESKTOP_WEB_LISTING`;
+    const url = `http://api.scraperapi.com?api_key=${process.env.SCRAPER_KEY}&url=${encodeURIComponent(swiggyUrl)}&render=false`;
 
-    fetch(url, { headers: swiggyHeaders })
+    fetch(url)
     .then(response => {
-        console.log("Restaurants response status:", response.status);
-        if (!response.ok) throw new Error(`Swiggy returned: ${response.status}`);
-        return response.json();
+        console.log("Restaurants ScraperAPI status:", response.status);
+        return response.text();
     })
-    .then(data => res.json(data))
+    .then(text => {
+        console.log("Restaurants raw response (first 200):", text.substring(0, 200));
+        const json = JSON.parse(text);
+        res.json(json);
+    })
     .catch(error => {
-        console.error("Error details:", error.message);
+        console.error("Restaurants error:", error.message);
         res.status(500).json({ error: error.message });
     });
 });
 
 app.get('/api/menu', (req, res) => {
     const { lat, lng, restaurantId } = req.query;
-    const url = `https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=${lat}&lng=${lng}&restaurantId=${restaurantId}&catalog_qa=undefined&submitAction=ENTER`;
+    const swiggyUrl = `https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=${lat}&lng=${lng}&restaurantId=${restaurantId}&catalog_qa=undefined&submitAction=ENTER`;
+    const url = `http://api.scraperapi.com?api_key=${process.env.SCRAPER_KEY}&url=${encodeURIComponent(swiggyUrl)}&render=false`;
 
-    console.log("Fetching URL:", url);
+    console.log("Fetching menu for restaurantId:", restaurantId);
 
-    fetch(url, { headers: swiggyHeaders })
+    fetch(url)
     .then(response => {
-        console.log("Menu response status:", response.status);
-        if (!response.ok) throw new Error(`Swiggy returned: ${response.status}`);
-        return response.json();
+        console.log("Menu ScraperAPI status:", response.status);
+        return response.text();
     })
-    .then(data => res.json(data))
+    .then(text => {
+        console.log("Menu raw response (first 200):", text.substring(0, 200));
+        const json = JSON.parse(text);
+        res.json(json);
+    })
     .catch(error => {
-        console.error("Error details:", error.message);
+        console.error("Menu error:", error.message);
         res.status(500).json({ error: error.message });
     });
 });
